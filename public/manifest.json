@@ -1,0 +1,58 @@
+{
+  "name": "NotaVoice - Voice to Text Notes",
+  "short_name": "NotaVoice",
+  "description": "Transform your voice into perfectly formatted notes with AI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["productivity", "business", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/placeholder.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Recording",
+      "short_name": "Record",
+      "description": "Start a new voice recording",
+      "url": "/app?action=record",
+      "icons": [{ "src": "/placeholder.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "View Notes",
+      "short_name": "Notes",
+      "description": "View your saved notes",
+      "url": "/app?tab=notes",
+      "icons": [{ "src": "/placeholder.svg", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholder.svg",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/placeholder.svg", 
+      "sizes": "720x540",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ]
+}
