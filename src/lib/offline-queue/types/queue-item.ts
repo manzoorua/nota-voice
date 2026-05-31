@@ -143,4 +143,12 @@ export interface QueueItemSummary {
   createdAt: number;
   state: QueueItemState;
   retryCount: number;
+  /**
+   * `true` when this summary represents a Dead Letter Store entry (a permanently
+   * failed item) rather than an active queue item. The UI uses this to surface
+   * retry/discard actions (Req 8.4, 8.6). Defaults to `false`/omitted for active
+   * items. DLS entries cannot be identified by {@link state} alone because the
+   * snapshot retains whatever state the item held when it was moved.
+   */
+  isDeadLetter?: boolean;
 }

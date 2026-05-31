@@ -771,6 +771,49 @@ export class QueueStore {
   }
 
   /**
+   * Reads a single value from the `metadata` object store by key.
+   *
+   * The metadata store holds the queue's auxiliary key-value state — the
+   * sequence counter (`lastSequenceNumber`), the persisted circuit-breaker
+   * snapshot (`circuitBreakerState`), and the compact-mode flag (`compactMode`)
+   * — as {@link MetadataRecord}s keyed by `key`. This is a generic accessor used
+   * by the OfflineQueue facade to hydrate the circuit breaker and compact-mode
+   * state on startup (Req 4.x crash resilience, 9.1).
+   *
+   * @typeParam T - The expected value type for the key.
+   * @param key - The metadata key to read.
+   * @returns The stored value, or `undefined` when the key is absent.
+   */
+  async getMetadata<T = unknown>(key: string): Promise<T | undefined> {
+    const db = await this.getDatabase();
+    const tx = db.transaction(STORE_METADATA, 'readonly');
+    const record = (await promisifyRequest(
+      tx.objectStore(STORE_METADATA).get(key),
+    )) as MetadataRecord | undefined;
+    return record ? (record.value as T) : undefined;
+  }
+
+  /**
+   * Writes a single value into the `metadata` object store under `key`,
+   * overwriting any existing value. Stored as a {@link MetadataRecord}
+   * (`{ key, value }`), consistent with the records seeded in
+   * {@link upgradeSchema} and written by {@link enqueue}/{@link getNextSequenceNumber}.
+   *
+   * Used as the persistence sink for the circuit-breaker snapshot
+   * (`circuitBreakerState`) and the compact-mode flag (`compactMode`).
+   *
+   * @param key - The metadata key to write.
+   * @param value - The value to persist (must be structured-cloneable).
+   */
+  async setMetadata(key: string, value: unknown): Promise<void> {
+    const db = await this.getDatabase();
+    const tx = db.transaction(STORE_METADATA, 'readwrite');
+    const record: MetadataRecord = { key, value };
+    await promisifyRequest(tx.objectStore(STORE_METADATA).put(record));
+    await this.awaitTransaction(tx);
+  }
+
+  /**
    * Recomputes the CRC32 of an item's payload and compares it against the
    * `payloadChecksum` stored at write time. (Req 7.5, 7.6)
    *
