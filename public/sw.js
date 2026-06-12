@@ -115,12 +115,38 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Background sync for offline recordings
+// Background Sync tag for the offline-queue subsystem.
+// NOTE: source of truth is BACKGROUND_SYNC_TAG in
+// src/lib/offline-queue/utils/constants.ts. The service worker is plain JS and
+// cannot import that constant, so this literal MUST be kept in sync with it.
+const OFFLINE_QUEUE_SYNC_TAG = 'offline-queue-sync';
+
+// Background sync handler.
+// Handles both the legacy 'background-sync-recordings' tag (existing behavior)
+// and the offline-queue 'offline-queue-sync' tag.
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync-recordings') {
     event.waitUntil(syncRecordings());
+  } else if (event.tag === OFFLINE_QUEUE_SYNC_TAG) {
+    event.waitUntil(notifyClientsOfflineQueueSync());
   }
 });
+
+// The service worker cannot directly drive the page-side OfflineQueue/SyncEngine
+// (they live on the page). When an 'offline-queue-sync' event fires, ping any
+// open clients so the page can run OfflineQueue.processQueue(). If there are no
+// open clients, resolve gracefully — the app will process the queue on its next
+// foreground session (Req 6.6).
+async function notifyClientsOfflineQueueSync() {
+  try {
+    const clientList = await self.clients.matchAll({ includeUncontrolled: true });
+    for (const client of clientList) {
+      client.postMessage({ type: 'OFFLINE_QUEUE_SYNC' });
+    }
+  } catch (error) {
+    console.error('Failed to notify clients of offline-queue sync:', error);
+  }
+}
 
 // Push notifications
 self.addEventListener('push', (event) => {

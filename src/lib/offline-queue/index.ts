@@ -69,6 +69,15 @@ export type {
   TransportResponse,
 } from './sync-engine';
 
+// --- Background Sync registration (page-side) -------------------------------
+export {
+  isBackgroundSyncSupported,
+  registerOfflineQueueSync,
+  onOfflineQueueSyncMessage,
+  OFFLINE_QUEUE_SYNC_MESSAGE_TYPE,
+} from './register-background-sync';
+export type { OfflineQueueSyncMessage } from './register-background-sync';
+
 // --- Schemas ----------------------------------------------------------------
 export { QueueItemSchema, QueueItemPayloadSchema } from './schemas';
 export type { QueueItemSchemaType, QueueItemPayloadSchemaType } from './schemas';

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { AuthProvider } from '@/hooks/useAuth';
 import { OrganizationProvider } from '@/hooks/useOrganization';
+import { QueueStatusProvider } from '@/lib/offline-queue/react';
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -33,12 +34,18 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children, skipAuth =
     );
   }
 
-  // Authenticated routes - full provider stack with lazy organization loading
+  // Authenticated routes - full provider stack with lazy organization loading.
+  // The offline queue is only meaningful for authenticated users creating notes,
+  // so QueueStatusProvider wraps the authenticated children here (and never the
+  // public/skipAuth branch). Mounting it initializes the OfflineQueue on app
+  // mount and shuts it down on unmount (Req 6.2, 8.1).
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <OrganizationProvider>
-          {children}
+          <QueueStatusProvider>
+            {children}
+          </QueueStatusProvider>
         </OrganizationProvider>
         <Toaster />
       </AuthProvider>

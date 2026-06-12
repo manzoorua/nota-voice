@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ProfileImageUpload } from '@/components/profile/ProfileImageUpload';
 import { AccountCard } from '@/components/profile/AccountCard';
 import { TroubleshootingCard } from '@/components/profile/TroubleshootingCard';
+import { QueueStatusPanel } from '@/lib/offline-queue/react';
 
 interface Profile {
   id: string;
@@ -345,6 +346,12 @@ const Profile = () => {
 
           {/* Troubleshooting Card */}
           <TroubleshootingCard onRetryTranscription={retryTranscription} />
+
+          {/* Offline queue status — surfaces pending/failed offline operations
+              and lets the user retry or discard failed items (Req 8.1, 8.3). */}
+          <div className="lg:col-span-2">
+            <QueueStatusPanel />
+          </div>
 
           {/* Referral Program Card */}
           <Card className="lg:col-span-2 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 border-primary/20">
